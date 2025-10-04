@@ -2,20 +2,25 @@
 Vehicle Routing Problem (VRP) - Main Entry Point
 
 This is the main entry point for the VRP application.
+Demonstrates both Greedy Nearest Neighbor and Simulated Annealing algorithms.
 """
 
+import random
 from src.models import Order, Vehicle, Route
 from src.utils import haversine_distance, calculate_distance
-from src.algorithms.greedy_nearest_neighbor import GreedyNearestNeighbor
+from src.algorithms import GreedyNearestNeighbor, SimulatedAnnealing
 
 
 def main():
     """
-    Demonstration of the Greedy Nearest Neighbor baseline algorithm.
+    Demonstration of VRP algorithms: Greedy baseline and Simulated Annealing.
     """
-    print("=" * 70)
-    print("Vehicle Routing Problem - Greedy Nearest Neighbor Algorithm")
-    print("=" * 70)
+    # Set random seed for reproducibility
+    random.seed(42)
+    
+    print("=" * 80)
+    print("Vehicle Routing Problem - Algorithm Comparison")
+    print("=" * 80)
     print()
     
     # Create sample orders across New York City
@@ -77,7 +82,7 @@ def main():
     
     # Display order details
     print("Orders to be assigned:")
-    print("-" * 70)
+    print("-" * 80)
     for order in orders:
         print(f"  {order.id}: "
               f"Pickup ({order.pickup_lat:.4f}, {order.pickup_lon:.4f}) -> "
@@ -86,15 +91,23 @@ def main():
     
     # Display vehicle details
     print("Available Vehicles:")
-    print("-" * 70)
+    print("-" * 80)
     for vehicle in vehicles:
         print(f"  {vehicle.id}: "
               f"Starting at ({vehicle.current_lat:.4f}, {vehicle.current_lon:.4f})")
     print()
     
-    # Run the greedy nearest neighbor algorithm
+    # =========================================================================
+    # PART 1: Greedy Nearest Neighbor Algorithm (Baseline)
+    # =========================================================================
+    
+    print("=" * 80)
+    print("PART 1: Greedy Nearest Neighbor Algorithm (Baseline)")
+    print("=" * 80)
+    print()
+    
     print("Running Greedy Nearest Neighbor Algorithm...")
-    print("-" * 70)
+    print("-" * 80)
     
     algorithm = GreedyNearestNeighbor(distance_unit='km')
     routes, unassigned = algorithm.solve(vehicles, orders)
@@ -103,70 +116,171 @@ def main():
     summary = algorithm.get_solution_summary(routes, unassigned)
     
     print()
-    print("Solution Summary:")
-    print("=" * 70)
-    print(f"Total Vehicles: {summary['total_vehicles']}")
-    print(f"Total Orders: {summary['total_orders']}")
-    print(f"Assigned Orders: {summary['assigned_orders']}")
-    print(f"Unassigned Orders: {summary['unassigned_orders']}")
-    print(f"Routes Used: {summary['routes_used']}")
+    print("Greedy Solution Summary:")
+    print("=" * 80)
     print(f"Total Distance: {summary['total_distance']} {summary['distance_unit']}")
-    print(f"Average Distance per Route: {summary['average_distance_per_route']} {summary['distance_unit']}")
+    print(f"Routes Used: {summary['routes_used']}/{summary['total_vehicles']}")
+    print(f"Assigned Orders: {summary['assigned_orders']}/{summary['total_orders']}")
     print()
     
-    # Display detailed route information
-    print("Detailed Route Information:")
-    print("=" * 70)
+    # Display route details
+    print("Route Details:")
+    print("-" * 80)
     for detail in summary['route_details']:
         if detail['orders_count'] > 0:
-            print(f"\nVehicle: {detail['vehicle_id']}")
-            print(f"  Orders Assigned: {detail['orders_count']}")
-            print(f"  Total Distance: {detail['total_distance']} {summary['distance_unit']}")
-            print(f"  Order Sequence: {' -> '.join(detail['order_sequence'])}")
-            
-            # Display route details with coordinates
-            route = next(r for r in routes if r.vehicle.id == detail['vehicle_id'])
-            print(f"  Route Details:")
-            print(f"    Start: {route.vehicle}")
-            
-            for i, order in enumerate(route.orders, 1):
-                pickup_dist = 0.0
-                if i == 1:
-                    # Distance from vehicle start to first pickup
-                    pickup_dist = haversine_distance(
-                        route.vehicle.get_current_coordinates(),
-                        order.get_pickup_coordinates(),
-                        unit='km'
-                    )
-                else:
-                    # Distance from previous dropoff to current pickup
-                    prev_order = route.orders[i-2]
-                    pickup_dist = haversine_distance(
-                        prev_order.get_dropoff_coordinates(),
-                        order.get_pickup_coordinates(),
-                        unit='km'
-                    )
-                
-                delivery_dist = haversine_distance(
-                    order.get_pickup_coordinates(),
-                    order.get_dropoff_coordinates(),
-                    unit='km'
-                )
-                
-                print(f"    {i}. {order.id}:")
-                print(f"       To Pickup: {pickup_dist:.2f} km")
-                print(f"       Delivery: {delivery_dist:.2f} km")
+            print(f"{detail['vehicle_id']}:")
+            print(f"  Orders: {' -> '.join(detail['order_sequence'])}")
+            print(f"  Distance: {detail['total_distance']} {summary['distance_unit']}")
+            print()
     
-    # Display unassigned orders if any
-    if unassigned:
-        print()
-        print("Unassigned Orders:")
-        print("-" * 70)
-        for order in unassigned:
-            print(f"  {order.id}")
+    # =========================================================================
+    # PART 2: Simulated Annealing Algorithm (Advanced Heuristic)
+    # =========================================================================
+    
+    print("=" * 80)
+    print("PART 2: Simulated Annealing Algorithm (Advanced Heuristic)")
+    print("=" * 80)
+    print()
+    
+    print("Configuration:")
+    print("-" * 80)
+    initial_temp = 1000.0
+    final_temp = 1.0
+    cooling_rate = 0.995
+    max_iterations = 5000
+    
+    print(f"  Initial Temperature: {initial_temp}")
+    print(f"  Final Temperature: {final_temp}")
+    print(f"  Cooling Rate: {cooling_rate}")
+    print(f"  Max Iterations: {max_iterations}")
+    print()
+    
+    print("Running Simulated Annealing...")
+    print("-" * 80)
+    print("This may take a moment...")
+    print()
+    
+    sa = SimulatedAnnealing(
+        initial_temp=initial_temp,
+        final_temp=final_temp,
+        cooling_rate=cooling_rate,
+        max_iterations=max_iterations,
+        distance_unit='km',
+        verbose=False
+    )
+    
+    sa_routes, sa_cost, sa_stats = sa.solve(vehicles, orders)
+    sa_summary = sa.get_solution_summary(sa_routes, sa_cost)
+    
+    print("Optimization Complete!")
+    print()
+    
+    print("Simulated Annealing Solution Summary:")
+    print("=" * 80)
+    print(f"Total Distance: {sa_summary['total_distance']} {sa_summary['distance_unit']}")
+    print(f"Routes Used: {sa_summary['routes_used']}/{sa_summary['total_vehicles']}")
+    print()
+    
+    print("Optimization Statistics:")
+    print("-" * 80)
+    print(f"Iterations: {sa_stats['iterations_completed']}")
+    print(f"Acceptance Rate: {sa_stats['acceptance_rate']:.1%}")
+    print(f"Better Solutions: {sa_stats['better_accepted']}")
+    print(f"Worse Solutions Accepted: {sa_stats['worse_accepted']}")
+    print()
+    print(f"Initial Cost: {sa_stats['initial_cost']} km")
+    print(f"Final Cost: {sa_stats['final_cost']} km")
+    print(f"Improvement: {sa_stats['improvement']} km "
+          f"({sa_stats['improvement_percentage']:.1f}%)")
+    print()
+    
+    print("Route Details:")
+    print("-" * 80)
+    for detail in sa_summary['route_details']:
+        if detail['orders_count'] > 0:
+            print(f"{detail['vehicle_id']}:")
+            print(f"  Orders: {' -> '.join(detail['order_sequence'])}")
+            print()
+    
+    # =========================================================================
+    # PART 3: Algorithm Comparison
+    # =========================================================================
+    
+    print("=" * 80)
+    print("PART 3: Algorithm Comparison")
+    print("=" * 80)
+    print()
+    
+    print(f"{'Algorithm':<35} {'Total Distance':<20} {'Routes Used':<15}")
+    print("-" * 80)
+    print(f"{'Greedy Nearest Neighbor':<35} "
+          f"{summary['total_distance']:<20} "
+          f"{summary['routes_used']:<15}")
+    print(f"{'Simulated Annealing':<35} "
+          f"{sa_summary['total_distance']:<20} "
+          f"{sa_summary['routes_used']:<15}")
+    print("-" * 80)
+    print()
+    
+    # Calculate improvement
+    improvement = summary['total_distance'] - sa_summary['total_distance']
+    improvement_pct = (improvement / summary['total_distance'] * 100)
+    
+    if improvement > 0:
+        print(f"✓ Simulated Annealing improved by {improvement:.2f} km "
+              f"({improvement_pct:.1f}%)")
+        print(f"  SA found a solution {improvement_pct:.1f}% better than Greedy!")
+    elif improvement == 0:
+        print(f"= Both algorithms found solutions with equal cost")
+    else:
+        print(f"⚠ In this run, Greedy performed better by {-improvement:.2f} km")
     
     print()
-    print("=" * 70)
+    
+    # =========================================================================
+    # PART 4: Key Insights
+    # =========================================================================
+    
+    print("=" * 80)
+    print("PART 4: Key Insights")
+    print("=" * 80)
+    print()
+    
+    print("Greedy Nearest Neighbor:")
+    print("-" * 80)
+    print("  ✓ Fast and simple")
+    print("  ✓ Deterministic results")
+    print("  ✓ Good for quick baseline solutions")
+    print("  ✗ Can get stuck in local optima")
+    print("  ✗ Quality depends on starting configuration")
+    print()
+    
+    print("Simulated Annealing:")
+    print("-" * 80)
+    print("  ✓ Escapes local optima through probabilistic acceptance")
+    print("  ✓ Typically finds better solutions than greedy")
+    print("  ✓ Flexible and tunable")
+    print("  ✗ Slower than greedy")
+    print("  ✗ Results may vary between runs")
+    print()
+    
+    print("When to use each:")
+    print("-" * 80)
+    print("  • Greedy: Quick solutions, small problems, baseline comparison")
+    print("  • SA: High-quality solutions needed, larger problems, time available")
+    print()
+    
+    print("=" * 80)
+    print("Demonstration Complete!")
+    print("=" * 80)
+    print()
+    print("To run individual algorithms:")
+    print("  • Greedy: python example_greedy_baseline.py")
+    print("  • SA: python example_simulated_annealing.py")
+    print()
+    print("To run tests:")
+    print("  • SA Tests: python test_simulated_annealing.py")
+    print()
 
 
 if __name__ == "__main__":
