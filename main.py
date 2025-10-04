@@ -6,83 +6,167 @@ This is the main entry point for the VRP application.
 
 from src.models import Order, Vehicle, Route
 from src.utils import haversine_distance, calculate_distance
+from src.algorithms.greedy_nearest_neighbor import GreedyNearestNeighbor
 
 
 def main():
     """
-    Demonstration of the core data structures and distance calculations.
+    Demonstration of the Greedy Nearest Neighbor baseline algorithm.
     """
-    # Create sample orders
-    order1 = Order(
-        id="ORD001",
-        pickup_lat=40.7128,
-        pickup_lon=-74.0060,
-        dropoff_lat=40.7589,
-        dropoff_lon=-73.9851
-    )
-    
-    order2 = Order(
-        id="ORD002",
-        pickup_lat=40.7580,
-        pickup_lon=-73.9855,
-        dropoff_lat=40.7614,
-        dropoff_lon=-73.9776
-    )
-    
-    # Create a vehicle
-    vehicle = Vehicle(
-        id="VEH001",
-        current_lat=40.7128,
-        current_lon=-74.0060
-    )
-    
-    # Create a route and assign orders
-    route = Route(vehicle=vehicle)
-    route.add_order(order1)
-    route.add_order(order2)
-    
-    # Display route information
-    print(f"Route for Vehicle {route.vehicle.id}:")
-    print(f"Total Orders: {route.get_total_orders()}")
+    print("=" * 70)
+    print("Vehicle Routing Problem - Greedy Nearest Neighbor Algorithm")
+    print("=" * 70)
     print()
     
-    # Calculate and display distances
-    print("Distance Calculations:")
-    print("-" * 50)
+    # Create sample orders across New York City
+    orders = [
+        Order(
+            id="ORD001",
+            pickup_lat=40.7128,  # Lower Manhattan
+            pickup_lon=-74.0060,
+            dropoff_lat=40.7589,  # Times Square
+            dropoff_lon=-73.9851
+        ),
+        Order(
+            id="ORD002",
+            pickup_lat=40.7580,  # Times Square area
+            pickup_lon=-73.9855,
+            dropoff_lat=40.7614,  # Central Park South
+            dropoff_lon=-73.9776
+        ),
+        Order(
+            id="ORD003",
+            pickup_lat=40.7831,  # Upper West Side
+            pickup_lon=-73.9712,
+            dropoff_lat=40.7489,  # Midtown East
+            dropoff_lon=-73.9680
+        ),
+        Order(
+            id="ORD004",
+            pickup_lat=40.7061,  # Brooklyn Bridge area
+            pickup_lon=-73.9969,
+            dropoff_lat=40.7306,  # East Village
+            dropoff_lon=-73.9866
+        ),
+        Order(
+            id="ORD005",
+            pickup_lat=40.7549,  # Hell's Kitchen
+            pickup_lon=-73.9840,
+            dropoff_lat=40.7829,  # Upper West Side
+            dropoff_lon=-73.9654
+        ),
+    ]
     
-    # Distance from vehicle to first order pickup
-    vehicle_coords = vehicle.get_current_coordinates()
-    order1_pickup = order1.get_pickup_coordinates()
+    # Create vehicles starting from different locations
+    vehicles = [
+        Vehicle(
+            id="VEH001",
+            current_lat=40.7128,  # Lower Manhattan
+            current_lon=-74.0060
+        ),
+        Vehicle(
+            id="VEH002",
+            current_lat=40.7580,  # Midtown
+            current_lon=-73.9855
+        ),
+    ]
     
-    distance_to_pickup = haversine_distance(vehicle_coords, order1_pickup)
-    print(f"Vehicle to Order 1 Pickup: {distance_to_pickup:.2f} km")
-    
-    # Distance for order1 (pickup to dropoff)
-    order1_dropoff = order1.get_dropoff_coordinates()
-    order1_distance = haversine_distance(order1_pickup, order1_dropoff)
-    print(f"Order 1 Distance: {order1_distance:.2f} km")
-    
-    # Distance for order2 (pickup to dropoff)
-    order2_pickup = order2.get_pickup_coordinates()
-    order2_dropoff = order2.get_dropoff_coordinates()
-    order2_distance = calculate_distance(
-        order2_pickup[0], order2_pickup[1],
-        order2_dropoff[0], order2_dropoff[1]
-    )
-    print(f"Order 2 Distance: {order2_distance:.2f} km")
-    
-    # Distance in different units
+    print(f"Total Orders: {len(orders)}")
+    print(f"Total Vehicles: {len(vehicles)}")
     print()
-    print("Order 1 Distance in different units:")
-    print(f"  Kilometers: {haversine_distance(order1_pickup, order1_dropoff, 'km'):.2f} km")
-    print(f"  Miles: {haversine_distance(order1_pickup, order1_dropoff, 'miles'):.2f} miles")
-    print(f"  Meters: {haversine_distance(order1_pickup, order1_dropoff, 'meters'):.2f} m")
+    
+    # Display order details
+    print("Orders to be assigned:")
+    print("-" * 70)
+    for order in orders:
+        print(f"  {order.id}: "
+              f"Pickup ({order.pickup_lat:.4f}, {order.pickup_lon:.4f}) -> "
+              f"Dropoff ({order.dropoff_lat:.4f}, {order.dropoff_lon:.4f})")
+    print()
+    
+    # Display vehicle details
+    print("Available Vehicles:")
+    print("-" * 70)
+    for vehicle in vehicles:
+        print(f"  {vehicle.id}: "
+              f"Starting at ({vehicle.current_lat:.4f}, {vehicle.current_lon:.4f})")
+    print()
+    
+    # Run the greedy nearest neighbor algorithm
+    print("Running Greedy Nearest Neighbor Algorithm...")
+    print("-" * 70)
+    
+    algorithm = GreedyNearestNeighbor(distance_unit='km')
+    routes, unassigned = algorithm.solve(vehicles, orders)
+    
+    # Get solution summary
+    summary = algorithm.get_solution_summary(routes, unassigned)
     
     print()
-    for i, order in enumerate(route.orders, 1):
-        print(f"  Order {order.id}: "
-              f"({order.pickup_lat}, {order.pickup_lon}) -> "
-              f"({order.dropoff_lat}, {order.dropoff_lon})")
+    print("Solution Summary:")
+    print("=" * 70)
+    print(f"Total Vehicles: {summary['total_vehicles']}")
+    print(f"Total Orders: {summary['total_orders']}")
+    print(f"Assigned Orders: {summary['assigned_orders']}")
+    print(f"Unassigned Orders: {summary['unassigned_orders']}")
+    print(f"Routes Used: {summary['routes_used']}")
+    print(f"Total Distance: {summary['total_distance']} {summary['distance_unit']}")
+    print(f"Average Distance per Route: {summary['average_distance_per_route']} {summary['distance_unit']}")
+    print()
+    
+    # Display detailed route information
+    print("Detailed Route Information:")
+    print("=" * 70)
+    for detail in summary['route_details']:
+        if detail['orders_count'] > 0:
+            print(f"\nVehicle: {detail['vehicle_id']}")
+            print(f"  Orders Assigned: {detail['orders_count']}")
+            print(f"  Total Distance: {detail['total_distance']} {summary['distance_unit']}")
+            print(f"  Order Sequence: {' -> '.join(detail['order_sequence'])}")
+            
+            # Display route details with coordinates
+            route = next(r for r in routes if r.vehicle.id == detail['vehicle_id'])
+            print(f"  Route Details:")
+            print(f"    Start: {route.vehicle}")
+            
+            for i, order in enumerate(route.orders, 1):
+                pickup_dist = 0.0
+                if i == 1:
+                    # Distance from vehicle start to first pickup
+                    pickup_dist = haversine_distance(
+                        route.vehicle.get_current_coordinates(),
+                        order.get_pickup_coordinates(),
+                        unit='km'
+                    )
+                else:
+                    # Distance from previous dropoff to current pickup
+                    prev_order = route.orders[i-2]
+                    pickup_dist = haversine_distance(
+                        prev_order.get_dropoff_coordinates(),
+                        order.get_pickup_coordinates(),
+                        unit='km'
+                    )
+                
+                delivery_dist = haversine_distance(
+                    order.get_pickup_coordinates(),
+                    order.get_dropoff_coordinates(),
+                    unit='km'
+                )
+                
+                print(f"    {i}. {order.id}:")
+                print(f"       To Pickup: {pickup_dist:.2f} km")
+                print(f"       Delivery: {delivery_dist:.2f} km")
+    
+    # Display unassigned orders if any
+    if unassigned:
+        print()
+        print("Unassigned Orders:")
+        print("-" * 70)
+        for order in unassigned:
+            print(f"  {order.id}")
+    
+    print()
+    print("=" * 70)
 
 
 if __name__ == "__main__":

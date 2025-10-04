@@ -8,6 +8,9 @@ A comprehensive solution for vehicle routing optimization.
 The Vehicle Routing Problem (VRP)/
 ├── src/
 │   ├── __init__.py
+│   ├── algorithms/
+│   │   ├── __init__.py
+│   │   └── greedy_nearest_neighbor.py  # Baseline greedy algorithm
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── order.py      # Order data structure
@@ -17,11 +20,17 @@ The Vehicle Routing Problem (VRP)/
 │       ├── __init__.py
 │       └── distance.py   # Distance calculation utilities
 ├── docs/
-│   └── distance_calculation.md  # Distance calculation documentation
-├── main.py               # Main entry point
-├── test_distance.py      # Distance calculation tests
-├── requirements.txt      # Project dependencies
-└── README.md            # This file
+│   ├── distance_calculation.md  # Distance calculation documentation
+│   └── greedy_algorithm.md      # Greedy algorithm documentation
+├── main.py                      # Main entry point with algorithm demo
+├── example_greedy_baseline.py   # Simple greedy algorithm example
+├── test_distance.py             # Distance calculation tests
+├── test_greedy_algorithm.py     # Greedy algorithm tests
+├── GREEDY_ALGORITHM_SUMMARY.md  # Implementation summary
+├── GREEDY_QUICK_REFERENCE.md    # Quick reference guide
+├── GREEDY_VISUAL_GUIDE.md       # Visual algorithm guide
+├── requirements.txt             # Project dependencies
+└── README.md                    # This file
 ```
 
 ## Core Data Structures
@@ -145,15 +154,90 @@ Run the comprehensive distance calculation tests:
 python3 test_distance.py
 ```
 
+### Testing Greedy Algorithm
+
+Run the greedy algorithm tests:
+
+```bash
+python3 -m pytest test_greedy_algorithm.py -v
+```
+
+Or run all tests:
+
+```bash
+python3 -m pytest -v
+```
+
 ## Features
 
 - ✅ Type-safe data structures with full type hints
 - ✅ Coordinate validation for all geographic points
 - ✅ **Haversine distance calculation** for real-world accuracy
 - ✅ Support for multiple distance units (km, miles, meters, feet)
+- ✅ **Greedy Nearest Neighbor baseline algorithm** for route optimization
+- ✅ Comprehensive route metrics and analysis
+- ✅ Round-robin vehicle assignment strategy
 - ✅ Clean, modular architecture
-- ✅ Comprehensive documentation
+- ✅ Comprehensive documentation with visual guides
 - ✅ Edge case handling and input validation
+- ✅ Extensive test coverage
+
+## Algorithms
+
+### Greedy Nearest Neighbor (Baseline)
+
+A simple, fast baseline algorithm that assigns orders to vehicles using a greedy nearest neighbor heuristic.
+
+**Quick Example:**
+
+```python
+from src.models import Order, Vehicle
+from src.algorithms.greedy_nearest_neighbor import GreedyNearestNeighbor
+
+# Create vehicles and orders
+vehicles = [
+    Vehicle("V1", 40.7128, -74.0060),
+    Vehicle("V2", 40.7580, -73.9855),
+]
+
+orders = [
+    Order("O1", 40.7128, -74.0060, 40.7589, -73.9851),
+    Order("O2", 40.7580, -73.9855, 40.7614, -73.9776),
+    Order("O3", 40.7831, -73.9712, 40.7489, -73.9680),
+]
+
+# Solve using greedy algorithm
+algorithm = GreedyNearestNeighbor(distance_unit='km')
+routes, unassigned = algorithm.solve(vehicles, orders)
+
+# Get solution summary
+summary = algorithm.get_solution_summary(routes, unassigned)
+print(f"Total distance: {summary['total_distance']} km")
+print(f"Routes used: {summary['routes_used']}")
+```
+
+**Algorithm Characteristics:**
+- **Time Complexity**: O(v × o²) where v = vehicles, o = orders
+- **Space Complexity**: O(v + o)
+- **Approach**: Iteratively assigns nearest unassigned order to each vehicle
+- **Distribution**: Round-robin across all vehicles
+- **Best For**: Baseline comparisons, quick solutions, small-medium problems
+
+**Documentation:**
+- 📚 [Full Documentation](docs/greedy_algorithm.md)
+- 🚀 [Quick Reference](GREEDY_QUICK_REFERENCE.md)
+- 📊 [Visual Guide](GREEDY_VISUAL_GUIDE.md)
+- ✅ [Implementation Summary](GREEDY_ALGORITHM_SUMMARY.md)
+
+**Run the Demo:**
+```bash
+python3 main.py
+```
+
+**Run Simple Example:**
+```bash
+python3 example_greedy_baseline.py
+```
 
 ## Development
 
