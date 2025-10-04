@@ -8,12 +8,18 @@ A comprehensive solution for vehicle routing optimization.
 The Vehicle Routing Problem (VRP)/
 ├── src/
 │   ├── __init__.py
-│   └── models/
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── order.py      # Order data structure
+│   │   ├── vehicle.py    # Vehicle data structure
+│   │   └── route.py      # Route data structure
+│   └── utils/
 │       ├── __init__.py
-│       ├── order.py      # Order data structure
-│       ├── vehicle.py    # Vehicle data structure
-│       └── route.py      # Route data structure
+│       └── distance.py   # Distance calculation utilities
+├── docs/
+│   └── distance_calculation.md  # Distance calculation documentation
 ├── main.py               # Main entry point
+├── test_distance.py      # Distance calculation tests
 ├── requirements.txt      # Project dependencies
 └── README.md            # This file
 ```
@@ -68,6 +74,7 @@ python main.py
 
 ```python
 from src.models import Order, Vehicle, Route
+from src.utils import haversine_distance, calculate_distance
 
 # Create an order
 order = Order(
@@ -90,15 +97,63 @@ route = Route(vehicle=vehicle)
 route.add_order(order)
 
 print(f"Total orders: {route.get_total_orders()}")
+
+# Calculate distances
+vehicle_coords = vehicle.get_current_coordinates()
+pickup_coords = order.get_pickup_coordinates()
+dropoff_coords = order.get_dropoff_coordinates()
+
+distance_to_pickup = haversine_distance(vehicle_coords, pickup_coords)
+order_distance = haversine_distance(pickup_coords, dropoff_coords)
+
+print(f"Distance to pickup: {distance_to_pickup:.2f} km")
+print(f"Order distance: {order_distance:.2f} km")
+```
+
+### Distance Calculation
+
+The project includes a robust distance calculation module using the **Haversine formula** for calculating great-circle distances between geographic coordinates.
+
+```python
+from src.utils import haversine_distance
+
+# Calculate distance between two points
+new_york = (40.7128, -74.0060)
+los_angeles = (34.0522, -118.2437)
+
+distance_km = haversine_distance(new_york, los_angeles)
+print(f"{distance_km:.2f} km")  # Output: 3935.75 km
+
+# Use different units
+distance_miles = haversine_distance(new_york, los_angeles, unit='miles')
+print(f"{distance_miles:.2f} miles")  # Output: 2445.56 miles
+```
+
+**Supported Units:**
+- Kilometers (`'km'`, `'kilometers'`)
+- Miles (`'miles'`)
+- Meters (`'meters'`, `'metres'`, `'m'`)
+- Feet (`'feet'`, `'ft'`)
+
+For detailed documentation on distance calculations, see [docs/distance_calculation.md](docs/distance_calculation.md).
+
+### Testing Distance Calculations
+
+Run the comprehensive distance calculation tests:
+
+```bash
+python3 test_distance.py
 ```
 
 ## Features
 
 - ✅ Type-safe data structures with full type hints
 - ✅ Coordinate validation for all geographic points
+- ✅ **Haversine distance calculation** for real-world accuracy
+- ✅ Support for multiple distance units (km, miles, meters, feet)
 - ✅ Clean, modular architecture
 - ✅ Comprehensive documentation
-- ✅ Edge case handling
+- ✅ Edge case handling and input validation
 
 ## Development
 
