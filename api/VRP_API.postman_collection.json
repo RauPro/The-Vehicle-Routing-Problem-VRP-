@@ -1,0 +1,224 @@
+{
+	"info": {
+		"_postman_id": "vrp-api-collection",
+		"name": "Vehicle Routing Problem API",
+		"description": "Complete collection of API endpoints for the VRP solver. Includes both Greedy and Simulated Annealing algorithms.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						},
+						"description": "Check if the API is healthy and operational"
+					}
+				},
+				{
+					"name": "Root Endpoint",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Get API information and status"
+					}
+				},
+				{
+					"name": "List Algorithms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/algorithms",
+							"host": ["{{base_url}}"],
+							"path": ["algorithms"]
+						},
+						"description": "List all available algorithms and their parameters"
+					}
+				}
+			]
+		},
+		{
+			"name": "Solve VRP",
+			"item": [
+				{
+					"name": "Solve - Greedy (Small)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicles\": [\n    {\n      \"id\": \"VEH001\",\n      \"current_lat\": 40.7128,\n      \"current_lon\": -74.0060\n    },\n    {\n      \"id\": \"VEH002\",\n      \"current_lat\": 40.7580,\n      \"current_lon\": -73.9855\n    }\n  ],\n  \"orders\": [\n    {\n      \"id\": \"ORD001\",\n      \"pickup_lat\": 40.7128,\n      \"pickup_lon\": -74.0060,\n      \"dropoff_lat\": 40.7589,\n      \"dropoff_lon\": -73.9851\n    },\n    {\n      \"id\": \"ORD002\",\n      \"pickup_lat\": 40.7580,\n      \"pickup_lon\": -73.9855,\n      \"dropoff_lat\": 40.7614,\n      \"dropoff_lon\": -73.9776\n    },\n    {\n      \"id\": \"ORD003\",\n      \"pickup_lat\": 40.7831,\n      \"pickup_lon\": -73.9712,\n      \"dropoff_lat\": 40.7489,\n      \"dropoff_lon\": -73.9680\n    }\n  ],\n  \"algorithm\": \"greedy\",\n  \"distance_unit\": \"km\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/solve",
+							"host": ["{{base_url}}"],
+							"path": ["solve"]
+						},
+						"description": "Solve a small VRP instance with Greedy algorithm"
+					}
+				},
+				{
+					"name": "Solve - Simulated Annealing (Small)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicles\": [\n    {\n      \"id\": \"VEH001\",\n      \"current_lat\": 40.7128,\n      \"current_lon\": -74.0060\n    },\n    {\n      \"id\": \"VEH002\",\n      \"current_lat\": 40.7580,\n      \"current_lon\": -73.9855\n    }\n  ],\n  \"orders\": [\n    {\n      \"id\": \"ORD001\",\n      \"pickup_lat\": 40.7128,\n      \"pickup_lon\": -74.0060,\n      \"dropoff_lat\": 40.7589,\n      \"dropoff_lon\": -73.9851\n    },\n    {\n      \"id\": \"ORD002\",\n      \"pickup_lat\": 40.7580,\n      \"pickup_lon\": -73.9855,\n      \"dropoff_lat\": 40.7614,\n      \"dropoff_lon\": -73.9776\n    },\n    {\n      \"id\": \"ORD003\",\n      \"pickup_lat\": 40.7831,\n      \"pickup_lon\": -73.9712,\n      \"dropoff_lat\": 40.7489,\n      \"dropoff_lon\": -73.9680\n    }\n  ],\n  \"algorithm\": \"simulated_annealing\",\n  \"distance_unit\": \"km\",\n  \"sa_params\": {\n    \"initial_temp\": 1000.0,\n    \"cooling_rate\": 0.995,\n    \"max_iterations\": 2000\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/solve",
+							"host": ["{{base_url}}"],
+							"path": ["solve"]
+						},
+						"description": "Solve a small VRP instance with Simulated Annealing"
+					}
+				},
+				{
+					"name": "Solve - SA (Medium, 5 orders)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicles\": [\n    {\n      \"id\": \"VEH001\",\n      \"current_lat\": 40.7128,\n      \"current_lon\": -74.0060\n    },\n    {\n      \"id\": \"VEH002\",\n      \"current_lat\": 40.7580,\n      \"current_lon\": -73.9855\n    }\n  ],\n  \"orders\": [\n    {\n      \"id\": \"ORD001\",\n      \"pickup_lat\": 40.7128,\n      \"pickup_lon\": -74.0060,\n      \"dropoff_lat\": 40.7589,\n      \"dropoff_lon\": -73.9851\n    },\n    {\n      \"id\": \"ORD002\",\n      \"pickup_lat\": 40.7580,\n      \"pickup_lon\": -73.9855,\n      \"dropoff_lat\": 40.7614,\n      \"dropoff_lon\": -73.9776\n    },\n    {\n      \"id\": \"ORD003\",\n      \"pickup_lat\": 40.7831,\n      \"pickup_lon\": -73.9712,\n      \"dropoff_lat\": 40.7489,\n      \"dropoff_lon\": -73.9680\n    },\n    {\n      \"id\": \"ORD004\",\n      \"pickup_lat\": 40.7061,\n      \"pickup_lon\": -73.9969,\n      \"dropoff_lat\": 40.7306,\n      \"dropoff_lon\": -73.9866\n    },\n    {\n      \"id\": \"ORD005\",\n      \"pickup_lat\": 40.7549,\n      \"pickup_lon\": -73.9840,\n      \"dropoff_lat\": 40.7829,\n      \"dropoff_lon\": -73.9654\n    }\n  ],\n  \"algorithm\": \"simulated_annealing\",\n  \"distance_unit\": \"km\",\n  \"sa_params\": {\n    \"initial_temp\": 1000.0,\n    \"cooling_rate\": 0.995,\n    \"max_iterations\": 5000\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/solve",
+							"host": ["{{base_url}}"],
+							"path": ["solve"]
+						},
+						"description": "Solve a medium VRP instance (5 orders) with SA"
+					}
+				},
+				{
+					"name": "Solve - Miles Unit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicles\": [\n    {\n      \"id\": \"VEH001\",\n      \"current_lat\": 40.7128,\n      \"current_lon\": -74.0060\n    }\n  ],\n  \"orders\": [\n    {\n      \"id\": \"ORD001\",\n      \"pickup_lat\": 40.7580,\n      \"pickup_lon\": -73.9855,\n      \"dropoff_lat\": 40.7614,\n      \"dropoff_lon\": -73.9776\n    },\n    {\n      \"id\": \"ORD002\",\n      \"pickup_lat\": 40.7831,\n      \"pickup_lon\": -73.9712,\n      \"dropoff_lat\": 40.7489,\n      \"dropoff_lon\": -73.9680\n    }\n  ],\n  \"algorithm\": \"simulated_annealing\",\n  \"distance_unit\": \"miles\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/solve",
+							"host": ["{{base_url}}"],
+							"path": ["solve"]
+						},
+						"description": "Solve VRP with distance in miles instead of kilometers"
+					}
+				}
+			]
+		},
+		{
+			"name": "Error Handling",
+			"item": [
+				{
+					"name": "Invalid Coordinates",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicles\": [\n    {\n      \"id\": \"VEH001\",\n      \"current_lat\": 100.0,\n      \"current_lon\": -74.0060\n    }\n  ],\n  \"orders\": [\n    {\n      \"id\": \"ORD001\",\n      \"pickup_lat\": 40.7580,\n      \"pickup_lon\": -73.9855,\n      \"dropoff_lat\": 40.7614,\n      \"dropoff_lon\": -73.9776\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/solve",
+							"host": ["{{base_url}}"],
+							"path": ["solve"]
+						},
+						"description": "Test error handling for invalid coordinates"
+					}
+				},
+				{
+					"name": "Empty Vehicles",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicles\": [],\n  \"orders\": [\n    {\n      \"id\": \"ORD001\",\n      \"pickup_lat\": 40.7580,\n      \"pickup_lon\": -73.9855,\n      \"dropoff_lat\": 40.7614,\n      \"dropoff_lon\": -73.9776\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/solve",
+							"host": ["{{base_url}}"],
+							"path": ["solve"]
+						},
+						"description": "Test error handling for empty vehicles list"
+					}
+				},
+				{
+					"name": "Invalid Algorithm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicles\": [\n    {\n      \"id\": \"VEH001\",\n      \"current_lat\": 40.7128,\n      \"current_lon\": -74.0060\n    }\n  ],\n  \"orders\": [\n    {\n      \"id\": \"ORD001\",\n      \"pickup_lat\": 40.7580,\n      \"pickup_lon\": -73.9855,\n      \"dropoff_lat\": 40.7614,\n      \"dropoff_lon\": -73.9776\n    }\n  ],\n  \"algorithm\": \"invalid_algorithm\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/solve",
+							"host": ["{{base_url}}"],
+							"path": ["solve"]
+						},
+						"description": "Test error handling for invalid algorithm name"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
